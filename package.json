@@ -1,0 +1,77 @@
+{
+  "name": "jobpilot-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "author": "JobPilot",
+  "license": "MIT",
+  "repository": "https://github.com/weaiw/jobpilot",
+  "description": "Local-first desktop job search copilot for BOSS Zhipin",
+  "main": "dist-electron/main.js",
+  "scripts": {
+    "dev": "concurrently -k \"vite --host 127.0.0.1\" \"tsup electron/main.ts electron/preload.ts --format cjs --out-dir dist-electron --external electron --watch\" \"wait-on tcp:5173 file:dist-electron/main.js && cross-env VITE_DEV_SERVER_URL=http://127.0.0.1:5173 electron .\"",
+    "build": "npm run validate:scripts && tsc --noEmit && vite build && tsup electron/main.ts electron/preload.ts --format cjs --out-dir dist-electron --external electron",
+    "package:mac": "npm run build && electron-builder --mac dmg zip",
+    "package:win": "npm run build && electron-builder --win nsis portable --x64",
+    "package:all": "npm run build && electron-builder --mac dmg zip && electron-builder --win nsis portable --x64",
+    "start": "electron .",
+    "typecheck": "tsc --noEmit",
+    "validate:scripts": "node scripts/validate-browser-scripts.mjs"
+  },
+  "dependencies": {
+    "lucide-react": "^0.468.0",
+    "mammoth": "^1.9.0",
+    "pdf-parse": "^1.1.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-markdown": "^10.1.0"
+  },
+  "build": {
+    "appId": "com.jobpilot.desktop",
+    "productName": "JobPilot",
+    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
+    "asar": true,
+    "directories": {
+      "output": "release",
+      "buildResources": "assets"
+    },
+    "files": [
+      "dist/**",
+      "dist-electron/**",
+      "package.json",
+      "assets/icons/**"
+    ],
+    "mac": {
+      "icon": "assets/icons/jobpilot.icns",
+      "category": "public.app-category.business",
+      "target": ["dmg", "zip"]
+    },
+    "win": {
+      "icon": "assets/icons/jobpilot.ico",
+      "target": ["nsis", "portable"]
+    },
+    "nsis": {
+      "artifactName": "${productName}-${version}-win-${arch}-setup.${ext}",
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "portable": {
+      "artifactName": "${productName}-${version}-win-${arch}-portable.${ext}"
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/react": "^18.3.17",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "concurrently": "^9.1.2",
+    "cross-env": "^7.0.3",
+    "electron-builder": "^26.0.12",
+    "electron": "^43.2.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.7",
+    "wait-on": "^8.0.1"
+  }
+}
